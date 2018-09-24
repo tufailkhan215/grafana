@@ -314,7 +314,7 @@ class MetricsPanelCtrl extends PanelCtrl {
 
   getAdditionalMenuItems() {
     const items = [];
-    if (config.exploreEnabled && this.contextSrv.isEditor && this.datasource && this.datasource.supportsExplore) {
+    if (config.exploreEnabled && this.contextSrv.isEditor && this.datasource && this.datasource.meta.explore) {
       items.push({
         text: 'Explore',
         click: 'ctrl.explore();',

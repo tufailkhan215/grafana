@@ -194,7 +194,7 @@ export class KeybindingSrv {
         if (dashboard.meta.focusPanelId) {
           const panel = dashboard.getPanelById(dashboard.meta.focusPanelId);
           const datasource = await this.datasourceSrv.get(panel.datasource);
-          if (datasource && datasource.supportsExplore) {
+          if (datasource && datasource.meta.explore) {
             const range = this.timeSrv.timeRangeForUrl();
             const state = {
               ...datasource.getExploreState(panel),

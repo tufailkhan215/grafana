@@ -149,8 +149,6 @@ export class PrometheusDatasource {
   editorSrc: string;
   name: string;
   ruleMappings: { [index: string]: string };
-  supportsExplore: boolean;
-  supportMetrics: boolean;
   url: string;
   directUrl: string;
   basicAuth: any;
@@ -166,8 +164,6 @@ export class PrometheusDatasource {
     this.type = 'prometheus';
     this.editorSrc = 'app/features/prometheus/partials/query.editor.html';
     this.name = instanceSettings.name;
-    this.supportsExplore = true;
-    this.supportMetrics = true;
     this.url = instanceSettings.url;
     this.directUrl = instanceSettings.directUrl;
     this.basicAuth = instanceSettings.basicAuth;
