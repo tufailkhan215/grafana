@@ -107,6 +107,21 @@ var adminCommands = []cli.Command{
 			},
 		},
 	},
+	{
+		Name:   "migrate-database",
+		Usage:  "Migrate database to the latest version",
+		Action: runDbCommand(migrateDatabaseCommand),
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:  "homepath",
+				Usage: "path to grafana install/home path, defaults to working directory",
+			},
+			cli.StringFlag{
+				Name:  "config",
+				Usage: "path to config file",
+			},
+		},
+	},
 }
 
 var Commands = []cli.Command{

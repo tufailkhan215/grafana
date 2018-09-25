@@ -42,3 +42,7 @@ func resetPasswordCommand(c CommandLine) error {
 
 	return nil
 }
+
+func migrateDatabaseCommand(c CommandLine) error {
+	return nil
+}
