@@ -314,25 +314,61 @@ class MetricsPanelCtrl extends PanelCtrl {
 
   getAdditionalMenuItems() {
     const items = [];
-    if (config.exploreEnabled && this.contextSrv.isEditor && this.datasource && this.datasource.meta.explore) {
+    if (
+      config.exploreEnabled &&
+      this.contextSrv.isEditor &&
+      this.datasource &&
+      (this.datasource.meta.explore || this.datasource.meta.id === 'mixed')
+    ) {
       items.push({
         text: 'Explore',
         click: 'ctrl.explore();',
         icon: 'fa fa-fw fa-rocket',
         shortcut: 'x',
       });
+
+      // Mixed datasources load asynchronously, need to preload instances to have them ready on click
+      if (this.datasource.meta.id === 'mixed') {
+        this.panel.targets.forEach(t => this.datasourceSrv.get(t.datasource));
+      }
     }
     return items;
   }
 
-  explore() {
+  async explore() {
     const range = this.timeSrv.timeRangeForUrl();
-    const state = {
-      ...this.datasource.getExploreState(this.panel),
-      range,
-    };
-    const exploreState = encodePathComponent(JSON.stringify(state));
-    this.$location.url(`/explore?state=${exploreState}`);
+    let exploreDatasource = this.datasource;
+    let exploreTargets = this.panel.targets;
+
+    // Mixed datasources need to choose only one datasource
+    if (this.datasource.meta.id === 'mixed' && exploreTargets) {
+      // Find first explore datasource among targets
+      let mixedExploreDatasource;
+      for (const t of this.panel.targets) {
+        if (!mixedExploreDatasource) {
+          const datasource = await this.datasourceSrv.get(t.datasource);
+          if (datasource && datasource.meta.explore) {
+            mixedExploreDatasource = datasource;
+          }
+        }
+      }
+
+      // Add all its targets
+      if (mixedExploreDatasource) {
+        exploreDatasource = mixedExploreDatasource;
+        exploreTargets = exploreTargets.filter(t => t.datasource === mixedExploreDatasource.name);
+      }
+    }
+
+    if (exploreDatasource && exploreDatasource.meta.explore) {
+      const state = {
+        ...exploreDatasource.getExploreState(exploreTargets),
+        range,
+      };
+      const exploreState = encodePathComponent(JSON.stringify(state));
+      // Need to defer URL change for unknown reasons
+      setTimeout(() => this.$location.url(`/explore?state=${exploreState}`), 0);
+    }
   }
 
   addQuery(target) {

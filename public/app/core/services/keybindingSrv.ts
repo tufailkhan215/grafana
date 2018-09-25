@@ -193,15 +193,38 @@ export class KeybindingSrv {
       this.bind('x', async () => {
         if (dashboard.meta.focusPanelId) {
           const panel = dashboard.getPanelById(dashboard.meta.focusPanelId);
-          const datasource = await this.datasourceSrv.get(panel.datasource);
-          if (datasource && datasource.meta.explore) {
+
+          let exploreDatasource = await this.datasourceSrv.get(panel.datasource);
+          let exploreTargets = panel.targets;
+
+          // Mixed datasources need to choose only one datasource
+          if (exploreDatasource.meta.id === 'mixed' && exploreTargets) {
+            // Find first explore datasource among targets
+            let mixedExploreDatasource;
+            for (const t of panel.targets) {
+              if (!mixedExploreDatasource) {
+                const datasource = await this.datasourceSrv.get(t.datasource);
+                if (datasource && datasource.meta.explore) {
+                  mixedExploreDatasource = datasource;
+                }
+              }
+            }
+
+            // Add all its targets
+            if (mixedExploreDatasource) {
+              exploreDatasource = mixedExploreDatasource;
+              exploreTargets = exploreTargets.filter(t => t.datasource === mixedExploreDatasource.name);
+            }
+          }
+
+          if (exploreDatasource && exploreDatasource.meta.explore) {
             const range = this.timeSrv.timeRangeForUrl();
             const state = {
-              ...datasource.getExploreState(panel),
+              ...exploreTargets.getExploreState(exploreTargets),
               range,
             };
             const exploreState = encodePathComponent(JSON.stringify(state));
-            this.$location.url(`/explore?state=${exploreState}`);
+            setTimeout(() => this.$location.url(`/explore?state=${exploreState}`), 0);
           }
         }
       });

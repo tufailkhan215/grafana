@@ -518,10 +518,10 @@ export class PrometheusDatasource {
     });
   }
 
-  getExploreState(panel) {
+  getExploreState(targets: any[]) {
     let state = {};
-    if (panel.targets) {
-      const queries = panel.targets.map(t => ({
+    if (targets && targets.length > 0) {
+      const queries = targets.map(t => ({
         query: this.templateSrv.replace(t.expr, {}, this.interpolateQueryExpr),
         format: t.format,
       }));
